@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Midnight Confetti Countdown</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to top, #0f0c29, #302b63, #24243e);
+      height: 100vh;
+      color: white;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #logo {
+      position: relative;
+      z-index: 3;
+    }
+
+    #logo img {
+      width: 150px;
+      height: auto;
+      filter: drop-shadow(0 0 20px white);
+    }
+
+    .message {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+      text-align: center;
+      z-index: 3;
+    }
+
+    #countdown {
+      font-size: 3rem;
+      font-weight: bold;
+      z-index: 3;
+    }
+
+    #confettiBtn {
+      margin-top: 1.5rem;
+      padding: 12px 20px;
+      font-size: 1rem;
+      background: #ffffff20;
+      border: 2px solid white;
+      color: whitel
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease,
+        transform 0.2s ease;
+      z-index: 4;
+    }
+
+    #confettiBtn: hover {
+      background: #ffffff40;
+      transform: scale(1.05);
+    }
+    
+    #float-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .floating-img {
+      position: absolute;
+      width: 40px;
+      opacity: 0;
+      animation: floatUp 10s linear forwards;
+      transition: transform 0.2s ease, opacity 2s;
+      filter: drop-shadow(0 0 8px #ffffffcc);
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="logo">
+    <img src="https://efmfleetservices.com/wp-content/uploads/2023/07/EFM-FULL-WHITE-1024x356.webp" alt="Manchester EFM Logo" />
+  </div>
+
+  <div class="message">A priviledge to speak to our customers </div>
+  <button id="confettiBtn">Launch?</button>
+  <div id="countdown">00:00:00</div>
+  <div id="float-container"></div>
+
+  <script>
+
+    document.getElementById('confettiBtn'), addEventListener('click', () => {
+      confetti ({
+        particleCount: 70,
+        spread: 120,
+        origin: { 7: 0.6},
+        colors: ['#ff66cc', '#00ccff', '#ffff66'],
+      });
+    });
+    
+    const floatContainer = document.getElementById('float-container');
+    const floatImgs = [
+      'https://media.licdn.com/dms/image/v2/D5603AQGNf35hhjXHcA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1724877842046?e=1758153600&v=beta&t=L1SuF3mgMW4agqzxCL9SKIn1hvkuU7tb8u9QOIBSZLY',
+      'https://download.logo.wine/logo/Tesco.com/Tesco.com-Logo.wine.png',
+      'https://logos-world.net/wp-content/uploads/2021/03/Morrisons-Logo-500x281.png'
+    ];
+
+    let secretConfettiTriggered = false;
+    let confettiShowActive = false;
+
+    function updateCountdown() {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(15, 0, 0, 0);
+      const diff = midnight - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      document.getElementById('countdown').textContent =
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      const minutesToMidnight = diff / 1000 / 60;
+
+      // 🎉 Confetti show
+      if (!confettiShowActive && minutesToMidnight <= 1 && minutesToMidnight >= -1) {
+        confettiShowActive = true;
+        startConfettiShow();
+      }
+
+      if (confettiShowActive && minutesToMidnight < -1) {
+        confettiShowActive = false;
+      }
+
+      // 🐣 Secret confetti cannon
+      if (
+        !secretConfettiTriggered &&
+        minutesToMidnight > 5 &&
+        minutesToMidnight <= 20 &&
+        Math.random() < 0.002
+      ) {
+        secretConfettiTriggered = true;
+        console.log("🤫 Secret confetti cannon triggered!");
+        launchSecretConfetti();
+      }
+    }
+
+    function startConfettiShow() {
+      const end = Date.now() + 120000; // 2 mins
+
+      const interval = setInterval(() => {
+        if (Date.now() > end || !confettiShowActive) {
+          clearInterval(interval);
+          return;
+        }
+
+        confetti({
+          particleCount: 5 + Math.floor(Math.random() * 10),
+          angle: 60 + Math.random() * 60,
+          spread: 55 + Math.random() * 50,
+          origin: { x: Math.random(), y: Math.random() * 0.5 },
+        });
+      }, 250);
+    }
+
+    function launchSecretConfetti() {
+      confetti({
+        particleCount: 100,
+        spread: 180,
+        origin: { y: 0.6 },
+        colors: ['#ff66cc', '#00ccff', '#ffff66'],
+      });
+    }
+
+    // 🖼 Floating image logic
+    function spawnFloatingImage() {
+      const img = document.createElement('img');
+      img.src = floatImgs[Math.floor(Math.random() * floatImgs.length)];
+      img.classList.add('floating-img');
+
+      const screenWidth = window.innerWidth;
+      let left = Math.random() * screenWidth;
+
+      const middleMin = screenWidth * 0.325;
+      const middleMax = screenWidth * 0.675;
+      if (left > middleMin && left < middleMax) {
+        left = left < screenWidth / 2
+          ? middleMin - Math.random() * 100
+          : middleMax + Math.random() * 100;
+      }
+
+      img.style.left = `${left}px`;
+      floatContainer.appendChild(img);
+
+      setTimeout(() => {
+        floatContainer.removeChild(img);
+      }, 10000);
+    }
+
+    setInterval(() => {
+      if (Math.random() < 0.2) {
+        spawnFloatingImage();
+      }
+    }, 1000);
+
+    // 🐭 Mouse reactive images
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      const imgs = document.querySelectorAll('.floating-img');
+      imgs.forEach(img => {
+        img.style.transform += ` rotate(${x * 0.3}deg) translateX(${x}px) translateY(${y}px)`;
+      });
+    });
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
